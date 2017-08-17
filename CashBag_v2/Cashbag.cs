@@ -120,5 +120,49 @@ namespace CashBag_v2
 
             return bags;
         }
+
+        private void tv_viewByStore_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node.Parent != null)
+            {
+                tv_viewByStore.SelectedNode = e.Node.Parent;
+            }
+            lblTransferBag.Text = "Transfer Bag To: ";
+            lblTransferBag.Text = lblTransferBag.Text + tv_viewByStore.SelectedNode.Text;
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            var selectedNode = tv_viewByStore.SelectedNode;
+            if(e.KeyData == Keys.Enter)
+            {
+                //This is where we grab the info from the SQL database to populate the tables on open
+                SQLiteConnection m_dbConnection = new SQLiteConnection(@"Data Source=Cashbag.db;Version=3;");
+                m_dbConnection.Open();
+
+                //create SQL string
+                string transferBag = String.Format("UPDATE Bags SET bagLocationID = (select Stores.storeID FROM Stores where Stores.storeName = '{0}') WHERE bagID = {1}", tv_viewByStore.SelectedNode.Text, textBox1.Text);
+                SQLiteCommand command = m_dbConnection.CreateCommand();
+                command.CommandText = transferBag;
+                command.ExecuteNonQuery();
+
+                //UpdateTreeViewByStore();
+                //tv_viewByStore.ExpandAll();
+
+                textBox1.SelectAll();
+
+
+
+            }
+            tv_viewByStore.SelectedNode = selectedNode;
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            UpdateTreeViewByStore();
+            tv_viewByStore.ExpandAll();
+
+        }
     }
 }
